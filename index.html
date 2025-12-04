@@ -3,21 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Shop - Microservices Demo</title>
+    <title>SIMPLEX | Microservices Commerce</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+        <div class="ambient-orb orb-3"></div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <h1>🛍️ Simple Shop</h1>
-            </div>
+        <div class="container nav-container">
+            <a href="#" class="nav-brand">
+                <span class="brand-icon">◈</span>
+                <span class="brand-text">SIMPLEX</span>
+            </a>
             <div class="nav-menu" id="navMenu">
-                <a href="#" class="nav-link" data-page="products">Products</a>
-                <a href="#" class="nav-link" data-page="orders">My Orders</a>
-                <a href="#" class="nav-link" data-page="addresses">Addresses</a>
-                <a href="#" class="nav-link" id="authLink">Login</a>
+                <a href="#" class="nav-link" data-page="products">
+                    <span class="nav-icon">⬡</span>
+                    <span>Shop</span>
+                </a>
+                <a href="#" class="nav-link" data-page="orders">
+                    <span class="nav-icon">◎</span>
+                    <span>Orders</span>
+                </a>
+                <a href="#" class="nav-link" data-page="addresses">
+                    <span class="nav-icon">⌂</span>
+                    <span>Addresses</span>
+                </a>
+                <a href="#" class="nav-link nav-auth" id="authLink">
+                    <span>Sign In</span>
+                </a>
             </div>
         </div>
     </nav>
@@ -28,30 +50,35 @@
             <!-- Auth Page -->
             <div id="authPage" class="page active">
                 <div class="auth-container">
-                    <div class="auth-card">
-                        <h2 id="authTitle">Welcome Back</h2>
-                        <p class="auth-subtitle">Sign in to continue shopping</p>
+                    <div class="auth-card glass-card">
+                        <div class="auth-header">
+                            <h1 class="auth-title" id="authTitle">Welcome back</h1>
+                            <p class="auth-subtitle">Enter your credentials to continue</p>
+                        </div>
                         
                         <div class="auth-tabs">
-                            <button class="tab-btn active" data-tab="login">Login</button>
-                            <button class="tab-btn" data-tab="register">Register</button>
+                            <button class="tab-btn active" data-tab="login">Sign In</button>
+                            <button class="tab-btn" data-tab="register">Create Account</button>
                         </div>
 
                         <!-- Login Form -->
                         <form id="loginForm" class="auth-form">
                             <div class="form-group">
                                 <label for="loginEmail">Email</label>
-                                <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                                <input type="email" id="loginEmail" placeholder="you@example.com" required>
                             </div>
                             <div class="form-group">
                                 <label for="loginPassword">Password</label>
                                 <input type="password" id="loginPassword" placeholder="••••••••" required>
                             </div>
-                            <button type="submit" class="btn btn-primary">Sign In</button>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="btn-text">Sign In</span>
+                                <span class="btn-loader"></span>
+                            </button>
                         </form>
 
                         <!-- Register Form -->
-                        <form id="registerForm" class="auth-form" style="display: none;">
+                        <form id="registerForm" class="auth-form hidden">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="regFirstName">First Name</label>
@@ -64,20 +91,32 @@
                             </div>
                             <div class="form-group">
                                 <label for="regEmail">Email</label>
-                                <input type="email" id="regEmail" placeholder="your@email.com" required>
+                                <input type="email" id="regEmail" placeholder="you@example.com" required>
                             </div>
                             <div class="form-group">
                                 <label for="regPassword">Password</label>
-                                <input type="password" id="regPassword" placeholder="••••••••" required>
+                                <input type="password" id="regPassword" placeholder="Min 8 chars, 1 uppercase, 1 number, 1 special" required minlength="8">
+                                <span class="form-hint">Must include uppercase, number, and special character</span>
                             </div>
                             <div class="form-group">
-                                <label for="regRole">Role</label>
-                                <select id="regRole" required>
-                                    <option value="buyer">Buyer</option>
-                                    <option value="seller">Seller</option>
-                                </select>
+                                <label for="regRole">Account Type</label>
+                                <div class="role-selector">
+                                    <input type="radio" name="role" id="roleBuyer" value="buyer" checked>
+                                    <label for="roleBuyer" class="role-option">
+                                        <span class="role-icon">◇</span>
+                                        <span>Buyer</span>
+                                    </label>
+                                    <input type="radio" name="role" id="roleSeller" value="seller">
+                                    <label for="roleSeller" class="role-option">
+                                        <span class="role-icon">◆</span>
+                                        <span>Seller</span>
+                                    </label>
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary">Create Account</button>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="btn-text">Create Account</span>
+                                <span class="btn-loader"></span>
+                            </button>
                         </form>
 
                         <div id="authMessage" class="message"></div>
@@ -88,35 +127,50 @@
             <!-- Products Page -->
             <div id="productsPage" class="page">
                 <div class="page-header">
-                    <h2>Products</h2>
-                    <button id="addProductBtn" class="btn btn-secondary" style="display: none;">+ Add Product</button>
+                    <div class="page-title-group">
+                        <h1 class="page-title">Discover</h1>
+                        <p class="page-subtitle">Browse our collection of premium products</p>
+                    </div>
+                    <button id="addProductBtn" class="btn btn-outline hidden">
+                        <span>+ Add Product</span>
+                    </button>
                 </div>
                 
                 <div id="productsGrid" class="products-grid">
-                    <div class="loading">Loading products...</div>
+                    <div class="skeleton-loader">
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                    </div>
                 </div>
 
                 <!-- Add Product Modal -->
                 <div id="addProductModal" class="modal">
-                    <div class="modal-content">
+                    <div class="modal-backdrop"></div>
+                    <div class="modal-content glass-card">
                         <div class="modal-header">
                             <h3>Add New Product</h3>
-                            <button class="modal-close">&times;</button>
+                            <button class="modal-close">✕</button>
                         </div>
                         <form id="addProductForm">
                             <div class="form-group">
                                 <label for="productName">Product Name</label>
-                                <input type="text" id="productName" required>
+                                <input type="text" id="productName" placeholder="Enter product name" required>
                             </div>
-                            <div class="form-group">
-                                <label for="productPrice">Price ($)</label>
-                                <input type="number" id="productPrice" step="0.01" required>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="productPrice">Price ($)</label>
+                                    <input type="number" id="productPrice" step="0.01" min="0.01" placeholder="0.00" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productStock">Stock</label>
+                                    <input type="number" id="productStock" min="0" placeholder="0" required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="productStock">Stock</label>
-                                <input type="number" id="productStock" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Add Product</button>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="btn-text">Add Product</span>
+                                <span class="btn-loader"></span>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -125,54 +179,72 @@
             <!-- Orders Page -->
             <div id="ordersPage" class="page">
                 <div class="page-header">
-                    <h2>My Orders</h2>
+                    <div class="page-title-group">
+                        <h1 class="page-title">Orders</h1>
+                        <p class="page-subtitle">Track and manage your purchases</p>
+                    </div>
                 </div>
                 <div id="ordersList" class="orders-list">
-                    <div class="loading">Loading orders...</div>
+                    <div class="skeleton-loader">
+                        <div class="skeleton-row"></div>
+                        <div class="skeleton-row"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- Addresses Page -->
             <div id="addressesPage" class="page">
                 <div class="page-header">
-                    <h2>My Addresses</h2>
-                    <button id="addAddressBtn" class="btn btn-secondary">+ Add Address</button>
+                    <div class="page-title-group">
+                        <h1 class="page-title">Addresses</h1>
+                        <p class="page-subtitle">Manage your delivery locations</p>
+                    </div>
+                    <button id="addAddressBtn" class="btn btn-outline">
+                        <span>+ Add Address</span>
+                    </button>
                 </div>
                 <div id="addressesList" class="addresses-list">
-                    <div class="loading">Loading addresses...</div>
+                    <div class="skeleton-loader">
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                    </div>
                 </div>
 
                 <!-- Add Address Modal -->
                 <div id="addAddressModal" class="modal">
-                    <div class="modal-content">
+                    <div class="modal-backdrop"></div>
+                    <div class="modal-content glass-card">
                         <div class="modal-header">
                             <h3>Add New Address</h3>
-                            <button class="modal-close">&times;</button>
+                            <button class="modal-close">✕</button>
                         </div>
                         <form id="addAddressForm">
                             <div class="form-group">
-                                <label for="addressTitle">Title</label>
+                                <label for="addressTitle">Label</label>
                                 <input type="text" id="addressTitle" placeholder="Home, Office, etc." required>
                             </div>
                             <div class="form-group">
-                                <label for="addressStreet">Street</label>
-                                <input type="text" id="addressStreet" required>
+                                <label for="addressStreet">Street Address</label>
+                                <input type="text" id="addressStreet" placeholder="123 Main Street" required>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="addressCity">City</label>
-                                    <input type="text" id="addressCity" required>
+                                    <input type="text" id="addressCity" placeholder="New York" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="addressZip">Zip Code</label>
-                                    <input type="text" id="addressZip" required>
+                                    <label for="addressZip">ZIP Code</label>
+                                    <input type="text" id="addressZip" placeholder="10001" required>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="addressCountry">Country</label>
-                                <input type="text" id="addressCountry" required>
+                                <input type="text" id="addressCountry" placeholder="United States" required>
                             </div>
-                            <button type="submit" class="btn btn-primary">Add Address</button>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="btn-text">Save Address</span>
+                                <span class="btn-loader"></span>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -181,7 +253,20 @@
     </main>
 
     <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast">
+        <span class="toast-icon"></span>
+        <span class="toast-message"></span>
+    </div>
+
+    <!-- User Menu Dropdown -->
+    <div id="userMenu" class="user-menu hidden">
+        <div class="user-menu-header">
+            <span class="user-email" id="userEmail"></span>
+            <span class="user-role" id="userRole"></span>
+        </div>
+        <div class="user-menu-divider"></div>
+        <button class="user-menu-item" id="logoutBtn">Sign Out</button>
+    </div>
 
     <script src="app.js"></script>
 </body>
