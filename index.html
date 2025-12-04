@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Shop - Microservices Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🛍️ Simple Shop</h1>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="#" class="nav-link" data-page="products">Products</a>
+                <a href="#" class="nav-link" data-page="orders">My Orders</a>
+                <a href="#" class="nav-link" data-page="addresses">Addresses</a>
+                <a href="#" class="nav-link" id="authLink">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Auth Page -->
+            <div id="authPage" class="page active">
+                <div class="auth-container">
+                    <div class="auth-card">
+                        <h2 id="authTitle">Welcome Back</h2>
+                        <p class="auth-subtitle">Sign in to continue shopping</p>
+                        
+                        <div class="auth-tabs">
+                            <button class="tab-btn active" data-tab="login">Login</button>
+                            <button class="tab-btn" data-tab="register">Register</button>
+                        </div>
+
+                        <!-- Login Form -->
+                        <form id="loginForm" class="auth-form">
+                            <div class="form-group">
+                                <label for="loginEmail">Email</label>
+                                <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="loginPassword">Password</label>
+                                <input type="password" id="loginPassword" placeholder="••••••••" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Sign In</button>
+                        </form>
+
+                        <!-- Register Form -->
+                        <form id="registerForm" class="auth-form" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="regFirstName">First Name</label>
+                                    <input type="text" id="regFirstName" placeholder="John" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="regLastName">Last Name</label>
+                                    <input type="text" id="regLastName" placeholder="Doe" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="regEmail">Email</label>
+                                <input type="email" id="regEmail" placeholder="your@email.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regPassword">Password</label>
+                                <input type="password" id="regPassword" placeholder="••••••••" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regRole">Role</label>
+                                <select id="regRole" required>
+                                    <option value="buyer">Buyer</option>
+                                    <option value="seller">Seller</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create Account</button>
+                        </form>
+
+                        <div id="authMessage" class="message"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Page -->
+            <div id="productsPage" class="page">
+                <div class="page-header">
+                    <h2>Products</h2>
+                    <button id="addProductBtn" class="btn btn-secondary" style="display: none;">+ Add Product</button>
+                </div>
+                
+                <div id="productsGrid" class="products-grid">
+                    <div class="loading">Loading products...</div>
+                </div>
+
+                <!-- Add Product Modal -->
+                <div id="addProductModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Add New Product</h3>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <form id="addProductForm">
+                            <div class="form-group">
+                                <label for="productName">Product Name</label>
+                                <input type="text" id="productName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productPrice">Price ($)</label>
+                                <input type="number" id="productPrice" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="productStock">Stock</label>
+                                <input type="number" id="productStock" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Product</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Page -->
+            <div id="ordersPage" class="page">
+                <div class="page-header">
+                    <h2>My Orders</h2>
+                </div>
+                <div id="ordersList" class="orders-list">
+                    <div class="loading">Loading orders...</div>
+                </div>
+            </div>
+
+            <!-- Addresses Page -->
+            <div id="addressesPage" class="page">
+                <div class="page-header">
+                    <h2>My Addresses</h2>
+                    <button id="addAddressBtn" class="btn btn-secondary">+ Add Address</button>
+                </div>
+                <div id="addressesList" class="addresses-list">
+                    <div class="loading">Loading addresses...</div>
+                </div>
+
+                <!-- Add Address Modal -->
+                <div id="addAddressModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Add New Address</h3>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <form id="addAddressForm">
+                            <div class="form-group">
+                                <label for="addressTitle">Title</label>
+                                <input type="text" id="addressTitle" placeholder="Home, Office, etc." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="addressStreet">Street</label>
+                                <input type="text" id="addressStreet" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="addressCity">City</label>
+                                    <input type="text" id="addressCity" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="addressZip">Zip Code</label>
+                                    <input type="text" id="addressZip" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="addressCountry">Country</label>
+                                <input type="text" id="addressCountry" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Address</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
