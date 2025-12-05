@@ -51,7 +51,7 @@ async function loadProducts() {
                     ${isAuthenticated() && product.stock > 0 ? `
                         <div class="product-actions">
                             <input type="number" class="quantity-input" value="1" min="1" max="${product.stock}" id="qty-${product.id}">
-                            <button class="btn btn-primary btn-small" onclick="window.createOrder(${product.id})">
+                            <button class="btn btn-primary btn-small" onclick="window.createOrder(${product.id}, event)">
                                 <span class="btn-text">Buy Now</span>
                                 <span class="btn-loader"></span>
                             </button>
@@ -75,11 +75,19 @@ async function loadProducts() {
     }
 }
 
-async function createOrder(productId) {
-    const quantity = parseInt(document.getElementById(`qty-${productId}`).value);
-    const button = event.target.closest('button');
+async function createOrder(productId, event) {
+    const qtyInput = document.getElementById(`qty-${productId}`);
+    if (!qtyInput) {
+        showToast('Could not find quantity input', 'error');
+        return;
+    }
+    
+    const quantity = parseInt(qtyInput.value) || 1;
+    const button = event?.target?.closest('button') || event?.currentTarget;
 
-    setButtonLoading(button, true);
+    if (button) {
+        setButtonLoading(button, true);
+    }
 
     try {
         await apiCall('/order', {
@@ -89,15 +97,17 @@ async function createOrder(productId) {
 
         showToast('Order created successfully!');
         
-        // Refresh products to update stock
+        // Refresh products to update stock and navigate to orders
+        loadProducts();
         setTimeout(() => {
-            loadProducts();
             navigateTo('orders');
-        }, 1000);
+        }, 500);
     } catch (error) {
         showToast(error.message, 'error');
     } finally {
-        setButtonLoading(button, false);
+        if (button) {
+            setButtonLoading(button, false);
+        }
     }
 }
 
