@@ -81,22 +81,89 @@ async function createOrder(productId, event) {
         showToast('Could not find quantity input', 'error');
         return;
     }
-    
+
     const quantity = parseInt(qtyInput.value) || 1;
     const button = event?.target?.closest('button') || event?.currentTarget;
+
+    // Show address modal
+    const addressModal = document.getElementById('addressModal');
+    if (addressModal) {
+        addressModal.classList.add('active');
+
+        // Store product info for later
+        window.pendingOrder = { productId, quantity, button };
+        return;
+    }
 
     if (button) {
         setButtonLoading(button, true);
     }
 
     try {
-        await apiCall('/order', {
+        await apiCall('/orders', {
             method: 'POST',
             body: JSON.stringify({ product_id: productId, quantity })
         });
 
         showToast('Order created successfully!');
-        
+
+        // Refresh products to update stock and navigate to orders
+        loadProducts();
+        setTimeout(() => {
+            navigateTo('orders');
+        }, 500);
+    } catch (error) {
+        showToast(error.message, 'error');
+    } finally {
+        if (button) {
+            setButtonLoading(button, false);
+        }
+    }
+}
+
+async function confirmOrderWithAddress() {
+    if (!window.pendingOrder) return;
+
+    const { productId, quantity, button } = window.pendingOrder;
+    const address = document.getElementById('orderAddress').value;
+    const city = document.getElementById('orderCity').value;
+    const postalCode = document.getElementById('orderPostalCode').value;
+    const country = document.getElementById('orderCountry').value;
+
+    if (!address || !city || !postalCode || !country) {
+        showToast('Please fill in all address fields', 'error');
+        return;
+    }
+
+    document.getElementById('addressModal').classList.remove('active');
+
+    if (button) {
+        setButtonLoading(button, true);
+    }
+
+    try {
+        await apiCall('/orders', {
+            method: 'POST',
+            body: JSON.stringify({
+                product_id: productId,
+                quantity,
+                shipping_address: address,
+                city,
+                postal_code: postalCode,
+                country
+            })
+        });
+
+        showToast('Order created successfully!');
+
+        // Clear form
+        document.getElementById('orderAddress').value = '';
+        document.getElementById('orderCity').value = '';
+        document.getElementById('orderPostalCode').value = '';
+        document.getElementById('orderCountry').value = '';
+
+        window.pendingOrder = null;
+
         // Refresh products to update stock and navigate to orders
         loadProducts();
         setTimeout(() => {
@@ -136,7 +203,7 @@ function initProductHandlers() {
 
     document.getElementById('addProductForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const button = e.target.querySelector('button[type="submit"]');
         const name = document.getElementById('productName').value;
         const price = parseFloat(document.getElementById('productPrice').value);
@@ -162,4 +229,5 @@ function initProductHandlers() {
     });
 }
 
-export { loadProducts, createOrder, initProductHandlers };
+export { loadProducts, createOrder, confirmOrderWithAddress, initProductHandlers };
+
