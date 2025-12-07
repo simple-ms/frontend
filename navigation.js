@@ -30,10 +30,33 @@ function navigateTo(pageName) {
             case 'addresses':
                 if (isAuthenticated()) loadAddresses();
                 break;
+            case 'seller-dashboard':
+                if (isAuthenticated()) {
+                    import('./seller.js').then(module => module.loadSellerDashboard());
+                }
+                break;
             case 'main':
                 // Main page doesn't need data loading
                 break;
         }
+    }
+}
+
+function updateNavigationForRole(role) {
+    const sellerDashboardLink = document.getElementById('sellerDashboardLink');
+    const ordersLink = document.getElementById('ordersLink');
+    const addressesLink = document.getElementById('addressesLink');
+
+    if (role === 'seller') {
+        // Show seller dashboard, hide buyer menus
+        sellerDashboardLink?.classList.remove('hidden');
+        ordersLink?.classList.add('hidden');
+        addressesLink?.classList.add('hidden');
+    } else {
+        // Show buyer menus, hide seller dashboard
+        sellerDashboardLink?.classList.add('hidden');
+        ordersLink?.classList.remove('hidden');
+        addressesLink?.classList.remove('hidden');
     }
 }
 
@@ -64,4 +87,4 @@ function initNavigationHandlers() {
     });
 }
 
-export { navigateTo, initNavigationHandlers };
+export { navigateTo, initNavigationHandlers, updateNavigationForRole };

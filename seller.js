@@ -2,102 +2,179 @@
 // Seller Dashboard Functions
 // ===========================================
 
+import { state } from './config.js';
 import { apiCall } from './api.js';
-import { formatDate, formatPrice, escapeHtml } from './utils.js';
 import { showToast } from './utils.js';
+import { logger } from './logger.js';
+
+async function loadSellerDashboard() {
+    logger.info('Loading seller dashboard');
+    await Promise.all([
+        loadSellerProducts(),
+        loadSellerOrders()
+    ]);
+}
+
+async function loadSellerProducts() {
+    const grid = document.getElementById('sellerProductsGrid');
+
+    try {
+        logger.info('Fetching all products to filter seller products');
+        const products = await apiCall('/products');
+
+        // Filter to show only seller's products
+        const myProducts = products.filter(p => p.seller_id === state.userId);
+
+        if (myProducts.length === 0) {
+            grid.innerHTML = '<p class="empty-state">You haven\'t created any products yet. Click "Add Product" to get started!</p>';
+            return;
+        }
+
+        grid.innerHTML = myProducts.map(product => `
+            <div class="product-card">
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-price">$${product.price.toFixed(2)}</p>
+                    <p class="product-stock">Stock: ${product.stock}</p>
+                </div>
+                <div class="product-actions" style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    <button onclick="window.editProduct(${product.id})" class="btn btn-sm">Edit</button>
+                    <button onclick="window.deleteProduct(${product.id})" class="btn btn-sm" style="background: #dc3545;">Delete</button>
+                </div>
+            </div>
+        `).join('');
+
+        logger.info(`Loaded ${myProducts.length} seller products`);
+    } catch (error) {
+        logger.error('Failed to load seller products', error);
+        grid.innerHTML = '<p class="error-state">Failed to load products. Please try again.</p>';
+        showToast('Failed to load products', 'error');
+    }
+}
 
 async function loadSellerOrders() {
     const list = document.getElementById('sellerOrdersList');
 
-    list.innerHTML = `
-        \u003cdiv class="skeleton-loader"\u003e
-            \u003cdiv class="skeleton-row"\u003e\u003c/div\u003e
-            \u003cdiv class="skeleton-row"\u003e\u003c/div\u003e
-        \u003c/div\u003e
-    `;
-
     try {
+        logger.info('Fetching seller orders');
         const orders = await apiCall('/orders/seller');
 
         if (orders.length === 0) {
-            list.innerHTML = `
-                \u003cdiv class="empty-state"\u003e
-                    \u003cdiv class="empty-icon"\u003e📦\u003c/div\u003e
-                    \u003ch3 class="empty-title"\u003eNo orders yet\u003c/h3\u003e
-                    \u003cp class="empty-text"\u003eOrders for your products will appear here.\u003c/p\u003e
-                \u003c/div\u003e
-            `;
+            list.innerHTML = '<p class="empty-state">No orders yet for your products.</p>';
             return;
         }
 
-        list.innerHTML = orders.map(order =\u003e`
-            \u003cdiv class="order-card seller-order"\u003e
-                \u003cdiv class="order-header"\u003e
-                    \u003cdiv class="order-id-group"\u003e
-                        \u003cspan class="order-id"\u003eOrder #${order.id.substring(0, 8)}\u003c/span\u003e
-                        \u003cspan class="order-date"\u003e${formatDate(order.created_at)}\u003c/span\u003e
-                    \u003c/div\u003e
-                    \u003cselect class="order-status-select" data-order-id="${order.id}" data-current-status="${order.status}"\u003e
-                        \u003coption value="pending" ${order.status === 'pending' ? 'selected' : ''}\u003ePending\u003c/option\u003e
-                        \u003coption value="processing" ${order.status === 'processing' ? 'selected' : ''}\u003eProcessing\u003c/option\u003e
-                        \u003coption value="shipped" ${order.status === 'shipped' ? 'selected' : ''}\u003eShipped\u003c/option\u003e
-                        \u003coption value="delivered" ${order.status === 'delivered' ? 'selected' : ''}\u003eDelivered\u003c/option\u003e
-                        \u003coption value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}\u003eCancelled\u003c/option\u003e
-                    \u003c/select\u003e
-                \u003c/div\u003e
-                \u003cdiv class="order-details"\u003e
-                    \u003cdiv class="order-detail"\u003e
-                        \u003cspan class="order-detail-label"\u003eProduct\u003c/span\u003e
-                        \u003cspan class="order-detail-value"\u003e#${order.product_id}\u003c/span\u003e
-                    \u003c/div\u003e
-                    \u003cdiv class="order-detail"\u003e
-                        \u003cspan class="order-detail-label"\u003eQuantity\u003c/span\u003e
-                        \u003cspan class="order-detail-value"\u003e${order.quantity}\u003c/span\u003e
-                    \u003c/div\u003e
-                    \u003cdiv class="order-detail"\u003e
-                        \u003cspan class="order-detail-label"\u003eTotal\u003c/span\u003e
-                        \u003cspan class="order-detail-value price"\u003e${formatPrice(order.total_amount)}\u003c/span\u003e
-                    \u003c/div\u003e
-                    ${order.shipping_address ? `
-                        \u003cdiv class="order-detail full-width"\u003e
-                            \u003cspan class="order-detail-label"\u003eShipping Address\u003c/span\u003e
-                            \u003cspan class="order-detail-value"\u003e${escapeHtml(order.shipping_address)}, ${escapeHtml(order.city)}, ${escapeHtml(order.postal_code)}, ${escapeHtml(order.country)}\u003c/span\u003e
-                        \u003c/div\u003e
-                    ` : ''}
-                \u003c/div\u003e
-            \u003c/div\u003e
-        `).join('');
+        list.innerHTML = orders.map(order => {
+            const isAwaitingApproval = order.status === 'AWAITING_APPROVAL';
+            const statusColor = isAwaitingApproval ? 'rgba(255,165,0,0.3)' : 'rgba(0,255,0,0.2)';
 
-        // Add event listeners for status changes
-        document.querySelectorAll('.order-status-select').forEach(select =\u003e {
-            select.addEventListener('change', async(e) =\u003e {
-                const orderId = e.target.dataset.orderId;
-                const newStatus = e.target.value;
-                const oldStatus = e.target.dataset.currentStatus;
-
-                try {
-                    await apiCall(`/orders/${orderId}/status`, {
-                        method: 'PATCH',
-                        body: JSON.stringify({ status: newStatus })
-                    });
-
-                    showToast('Order status updated successfully!');
-                    e.target.dataset.currentStatus = newStatus;
-                } catch(error) {
-                    showToast(error.message, 'error');
-                    e.target.value = oldStatus; // Revert on error
-                }
-            });
-        });
-    } catch (error) {
-        list.innerHTML = `
-            \u003cdiv class="empty-state"\u003e
-                \u003cdiv class="empty-icon"\u003e⚠\u003c/div\u003e
-                \u003ch3 class="empty-title"\u003eFailed to load orders\u003c/h3\u003e
-                \u003cp class="empty-text"\u003e${escapeHtml(error.message)}\u003c/div\u003e
-            \u003c/div\u003e
+            return `
+            <div class="order-card" style="padding: 1.5rem; margin-bottom: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                <div class="order-header" style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <div>
+                        <strong>Order #${order.id}</strong>
+                        <p style="margin: 0.25rem 0; opacity: 0.7;">Product ID: ${order.product_id}</p>
+                    </div>
+                    <span class="status status-${order.status.toLowerCase()}" style="padding: 0.25rem 0.75rem; border-radius: 4px; background: ${statusColor};">
+                        ${order.status}
+                    </span>
+                </div>
+                <div class="order-details" style="margin-bottom: 1rem;">
+                    <p>Quantity: ${order.quantity}</p>
+                    <p>Total: $${order.total_amount.toFixed(2)}</p>
+                    <p>Customer: ${order.user_id}</p>
+                </div>
+                ${isAwaitingApproval ? `
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <button onclick="window.approveOrder('${order.id}')" class="btn btn-primary" style="flex: 1;">
+                            ✓ Approve Order
+                        </button>
+                        <button onclick="window.rejectOrder('${order.id}')" class="btn" style="flex: 1; background: #dc3545;">
+                            ✗ Reject Order
+                        </button>
+                    </div>
+                ` : ''}
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <label for="status-${order.id}">Update Status:</label>
+                    <select id="status-${order.id}" onchange="window.updateOrderStatus('${order.id}', this.value)" class="form-control" style="flex: 1;" ${isAwaitingApproval ? 'disabled' : ''}>
+                        <option value="AWAITING_APPROVAL" ${order.status === 'AWAITING_APPROVAL' ? 'selected' : ''}>Awaiting Approval</option>
+                        <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>Pending</option>
+                        <option value="PROCESSING" ${order.status === 'PROCESSING' ? 'selected' : ''}>Processing</option>
+                        <option value="SHIPPED" ${order.status === 'SHIPPED' ? 'selected' : ''}>Shipped</option>
+                        <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>Delivered</option>
+                        <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>Cancelled</option>
+                    </select>
+                </div>
+            </div>
         `;
+        }).join('');
+
+        logger.info(`Loaded ${orders.length} seller orders`);
+    } catch (error) {
+        logger.error('Failed to load seller orders', error);
+        list.innerHTML = '<p class="error-state">Failed to load orders. Please try again.</p>';
+        showToast('Failed to load orders', 'error');
     }
 }
 
-export { loadSellerOrders };
+async function updateOrderStatus(orderId, newStatus) {
+    try {
+        logger.info(`Updating order ${orderId} status to ${newStatus}`);
+
+        await apiCall(`/orders/${orderId}/status`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        showToast('Order status updated successfully');
+        await loadSellerOrders(); // Reload orders
+    } catch (error) {
+        logger.error('Failed to update order status', error);
+        showToast('Failed to update order status', 'error');
+        await loadSellerOrders(); // Reload to reset dropdown
+    }
+}
+
+async function approveOrder(orderId) {
+    try {
+        logger.info(`Approving order ${orderId}`);
+
+        await apiCall(`/orders/${orderId}/approve`, {
+            method: 'POST'
+        });
+
+        showToast('Order approved! Stock will be reserved.');
+        await loadSellerOrders(); // Reload orders
+    } catch (error) {
+        logger.error('Failed to approve order', error);
+        showToast('Failed to approve order', 'error');
+    }
+}
+
+async function rejectOrder(orderId) {
+    if (!confirm('Are you sure you want to reject this order?')) {
+        return;
+    }
+
+    try {
+        logger.info(`Rejecting order ${orderId}`);
+
+        await apiCall(`/orders/${orderId}/reject`, {
+            method: 'POST'
+        });
+
+        showToast('Order rejected');
+        await loadSellerOrders(); // Reload orders
+    } catch (error) {
+        logger.error('Failed to reject order', error);
+        showToast('Failed to reject order', 'error');
+    }
+}
+
+// Make functions globally available
+window.loadSellerDashboard = loadSellerDashboard;
+window.updateOrderStatus = updateOrderStatus;
+window.approveOrder = approveOrder;
+window.rejectOrder = rejectOrder;
+
+export { loadSellerDashboard, loadSellerProducts, loadSellerOrders, updateOrderStatus, approveOrder, rejectOrder };

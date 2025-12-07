@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIMPLEX | Microservices Commerce</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <!-- Ambient Background -->
     <div class="ambient-bg">
@@ -29,11 +33,15 @@
                     <span class="nav-icon">⬡</span>
                     <span>Shop</span>
                 </a>
-                <a href="#" class="nav-link" data-page="orders">
+                <a href="#" class="nav-link hidden" data-page="seller-dashboard" id="sellerDashboardLink">
+                    <span class="nav-icon">◆</span>
+                    <span>Seller Dashboard</span>
+                </a>
+                <a href="#" class="nav-link" data-page="orders" id="ordersLink">
                     <span class="nav-icon">◎</span>
                     <span>Orders</span>
                 </a>
-                <a href="#" class="nav-link" data-page="addresses">
+                <a href="#" class="nav-link" data-page="addresses" id="addressesLink">
                     <span class="nav-icon">⌂</span>
                     <span>Addresses</span>
                 </a>
@@ -97,7 +105,7 @@
                             <h1 class="auth-title" id="authTitle">Welcome back</h1>
                             <p class="auth-subtitle">Enter your credentials to continue</p>
                         </div>
-                        
+
                         <div class="auth-tabs">
                             <button class="tab-btn active" data-tab="login">Sign In</button>
                             <button class="tab-btn" data-tab="register">Create Account</button>
@@ -137,12 +145,14 @@
                             </div>
                             <div class="form-group">
                                 <label for="regPassword">Password</label>
-                                <input type="password" id="regPassword" placeholder="Min 8 chars, 1 uppercase, 1 number, 1 special" required minlength="8">
+                                <input type="password" id="regPassword"
+                                    placeholder="Min 8 chars, 1 uppercase, 1 number, 1 special" required minlength="8">
                                 <span class="form-hint">Must include uppercase, number, and special character</span>
                             </div>
                             <div class="form-group">
                                 <label for="regPasswordRepeat">Repeat Password</label>
-                                <input type="password" id="regPasswordRepeat" placeholder="Re-enter your password" required minlength="8">
+                                <input type="password" id="regPasswordRepeat" placeholder="Re-enter your password"
+                                    required minlength="8">
                                 <span class="form-hint">Must match the password above</span>
                             </div>
                             <div class="form-group">
@@ -182,7 +192,7 @@
                         <span>+ Add Product</span>
                     </button>
                 </div>
-                
+
                 <div id="productsGrid" class="products-grid">
                     <div class="skeleton-loader">
                         <div class="skeleton-card"></div>
@@ -207,7 +217,8 @@
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="productPrice">Price ($)</label>
-                                    <input type="number" id="productPrice" step="0.01" min="0.01" placeholder="0.00" required>
+                                    <input type="number" id="productPrice" step="0.01" min="0.01" placeholder="0.00"
+                                        required>
                                 </div>
                                 <div class="form-group">
                                     <label for="productStock">Stock</label>
@@ -296,6 +307,45 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Seller Dashboard Page -->
+            <div id="sellerDashboardPage" class="page">
+                <div class="page-header">
+                    <div class="page-title-group">
+                        <h1 class="page-title">Seller Dashboard</h1>
+                        <p class="page-subtitle">Manage your products and orders</p>
+                    </div>
+                </div>
+
+                <!-- My Products Section -->
+                <div class="dashboard-section" style="margin-bottom: 3rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 style="margin: 0;">My Products</h2>
+                        <button id="addProductBtnDashboard" class="btn btn-primary">
+                            <span>+ Add Product</span>
+                        </button>
+                    </div>
+                    <div id="sellerProductsGrid" class="products-grid">
+                        <div class="skeleton-loader">
+                            <div class="skeleton-card"></div>
+                            <div class="skeleton-card"></div>
+                            <div class="skeleton-card"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders for My Products -->
+                <div class="dashboard-section">
+                    <h2 style="margin-bottom: 1.5rem;">Orders for My Products</h2>
+                    <div id="sellerOrdersList" class="orders-list">
+                        <div class="skeleton-loader">
+                            <div class="skeleton-row"></div>
+                            <div class="skeleton-row"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -317,4 +367,5 @@
 
     <script type="module" src="app.js"></script>
 </body>
+
 </html>

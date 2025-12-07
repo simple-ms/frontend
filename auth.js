@@ -5,7 +5,8 @@
 import { state } from './config.js';
 import { apiCall } from './api.js';
 import { showToast, showMessage, setButtonLoading } from './utils.js';
-import { navigateTo } from './navigation.js';
+import { navigateTo, updateNavigationForRole } from './navigation.js';
+import { logger } from './logger.js';
 
 function isAuthenticated() {
     return !!state.token;
@@ -88,6 +89,11 @@ function updateAuthUI() {
         addProductBtn.classList.add('hidden');
         userMenu.classList.add('hidden');
     }
+
+    // Update navigation based on role
+    if (state.userRole) {
+        updateNavigationForRole(state.userRole);
+    }
 }
 
 function initAuthHandlers() {
@@ -129,7 +135,7 @@ function initAuthHandlers() {
     });
 
     // Login form
-    document.getElementById('loginForm').addEventListener('submit', async(e) => {
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const button = e.target.querySelector('button[type="submit"]');
