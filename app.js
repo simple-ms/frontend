@@ -5,12 +5,14 @@
 import { state } from './config.js';
 import { isAuthenticated, updateAuthUI, initAuthHandlers } from './auth.js';
 import { navigateTo, initNavigationHandlers } from './navigation.js';
-import { createOrder, initProductHandlers } from './products.js';
+import { createOrder, initProductHandlers, editProduct, deleteProduct } from './products.js';
 import { deleteAddress, initAddressHandlers } from './addresses.js';
 import { logger } from './logger.js';
 
 // Make functions globally available for onclick handlers
 window.createOrder = createOrder;
+window.editProduct = editProduct;
+window.deleteProduct = deleteProduct;
 window.deleteAddress = deleteAddress;
 
 // Make logger available for debugging

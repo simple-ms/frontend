@@ -42,7 +42,7 @@ async function loadAddresses() {
                 </div>
                 <div class="address-details">
                     ${escapeHtml(address.street)}<br>
-                    ${escapeHtml(address.city)}, ${escapeHtml(address.zip_code)}<br>
+                    ${escapeHtml(address.city)}, ${escapeHtml(address.postal_code)}<br>
                     ${escapeHtml(address.country)}
                 </div>
             </div>
@@ -76,22 +76,29 @@ function initAddressHandlers() {
         document.getElementById('addAddressModal').classList.add('active');
     });
 
-    document.getElementById('addAddressForm').addEventListener('submit', async(e) => {
+    document.getElementById('addAddressForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const button = e.target.querySelector('button[type="submit"]');
-        const title = document.getElementById('addressTitle').value;
-        const street = document.getElementById('addressStreet').value;
-        const city = document.getElementById('addressCity').value;
-        const zip_code = document.getElementById('addressZip').value;
-        const country = document.getElementById('addressCountry').value;
+        const title = document.getElementById('addressTitle').value.trim();
+        const street = document.getElementById('addressStreet').value.trim();
+        const city = document.getElementById('addressCity').value.trim();
+        const postal_code = document.getElementById('addressZip').value.trim();
+        const country = document.getElementById('addressCountry').value.trim();
 
         setButtonLoading(button, true);
 
         try {
             await apiCall('/users/addresses', {
                 method: 'POST',
-                body: JSON.stringify({ title, street, city, zip_code, country })
+                body: JSON.stringify({
+                    title,
+                    street,
+                    city,
+                    postal_code,  // Changed from zip_code
+                    country,
+                    is_default: false
+                })
             });
 
             showToast('Address saved!');
