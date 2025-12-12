@@ -35,11 +35,9 @@ function init() {
 
     // Update UI BEFORE attaching navigation handlers
     // This ensures buttons are visible when we attach event listeners
-    logger.info('Updating auth UI');
     updateAuthUI();
 
     // NOW attach navigation handlers (after buttons are visible)
-    logger.info('Initializing navigation handlers');
     initNavigationHandlers();
 
     // Initialize other handlers
@@ -48,7 +46,6 @@ function init() {
     initMainPageHandlers();
 
     // Always start at main page
-    logger.info('Navigating to main page');
     navigateTo('main');
 
     logger.info('Application initialized successfully');
