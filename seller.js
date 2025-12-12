@@ -8,11 +8,17 @@ import { showToast } from './utils.js';
 import { logger } from './logger.js';
 
 async function loadSellerDashboard() {
-    logger.info('Loading seller dashboard');
-    await Promise.all([
-        loadSellerProducts(),
-        loadSellerOrders()
-    ]);
+    logger.info('[Seller] loadSellerDashboard called');
+
+    try {
+        await Promise.all([
+            loadSellerProducts(),
+            loadSellerOrders()
+        ]);
+        logger.info('[Seller] Seller dashboard loaded successfully');
+    } catch (error) {
+        logger.error('[Seller] Error loading seller dashboard:', error);
+    }
 }
 
 async function loadSellerProducts() {
@@ -54,16 +60,20 @@ async function loadSellerProducts() {
 
 async function loadSellerOrders() {
     const list = document.getElementById('sellerOrdersList');
+    logger.info('[Seller] loadSellerOrders called');
 
     try {
-        logger.info('Fetching seller orders');
+        logger.info('[Seller] Fetching seller orders from /orders/seller');
         const orders = await apiCall('/orders/seller');
+        logger.info(`[Seller] Received ${orders.length} orders`);
 
         if (orders.length === 0) {
+            logger.info('[Seller] No orders found');
             list.innerHTML = '<p class="empty-state">No orders yet for your products.</p>';
             return;
         }
 
+        logger.info(`[Seller] Rendering ${orders.length} orders`);
         list.innerHTML = orders.map(order => {
             const isAwaitingApproval = order.status === 'AWAITING_APPROVAL';
             const statusColor = isAwaitingApproval ? 'rgba(255,165,0,0.3)' : 'rgba(0,255,0,0.2)';

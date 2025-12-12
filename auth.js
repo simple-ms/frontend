@@ -231,9 +231,10 @@ function updateAuthUI() {
             userMenu.classList.toggle('hidden');
         };
 
-        // Show navigation links
+        // Show navigation links by removing hidden class from all nav links
+        // Then updateNavigationForRole will hide the ones that shouldn't be visible for this role
         navMenu.querySelectorAll('.nav-link[data-page]').forEach(link => {
-            link.style.display = 'flex';
+            link.classList.remove('hidden');
         });
 
         // Update user menu
@@ -254,10 +255,10 @@ function updateAuthUI() {
             navigateTo('auth');
         };
 
-        // Hide navigation links except products
+        // Hide navigation links except products (use classList instead of inline styles)
         navMenu.querySelectorAll('.nav-link[data-page]').forEach(link => {
             if (link.dataset.page !== 'products') {
-                link.style.display = 'none';
+                link.classList.add('hidden');
             }
         });
 
