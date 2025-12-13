@@ -8,13 +8,18 @@ import { loadProducts } from './products.js';
 import { loadOrders } from './orders.js';
 import { loadAddresses } from './addresses.js';
 import { showToast } from './utils.js';
+import { logger } from './logger.js';
 
 function navigateTo(pageName) {
     document.querySelectorAll('.page').forEach(page => {
         page.classList.remove('active');
     });
 
-    const targetPage = document.getElementById(`${pageName}Page`);
+    // Convert kebab-case to camelCase for page ID
+    // 'seller-dashboard' -> 'sellerDashboard' -> 'sellerDashboardPage'
+    const pageId = pageName.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+    const targetPage = document.getElementById(`${pageId}Page`);
+
     if (targetPage) {
         targetPage.classList.add('active');
         state.currentPage = pageName;
@@ -32,13 +37,19 @@ function navigateTo(pageName) {
                 break;
             case 'seller-dashboard':
                 if (isAuthenticated()) {
-                    import('./seller.js').then(module => module.loadSellerDashboard());
+                    import('./seller.js').then(module => {
+                        module.loadSellerDashboard();
+                    }).catch(err => {
+                        logger.error('[Navigation] Failed to load seller.js:', err);
+                    });
                 }
                 break;
             case 'main':
                 // Main page doesn't need data loading
                 break;
         }
+    } else {
+        logger.error(`[Navigation] Target page not found: ${pageName}`);
     }
 }
 

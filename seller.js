@@ -8,11 +8,14 @@ import { showToast } from './utils.js';
 import { logger } from './logger.js';
 
 async function loadSellerDashboard() {
-    logger.info('Loading seller dashboard');
-    await Promise.all([
-        loadSellerProducts(),
-        loadSellerOrders()
-    ]);
+    try {
+        await Promise.all([
+            loadSellerProducts(),
+            loadSellerOrders()
+        ]);
+    } catch (error) {
+        logger.error('[Seller] Error loading seller dashboard:', error);
+    }
 }
 
 async function loadSellerProducts() {
@@ -56,14 +59,12 @@ async function loadSellerOrders() {
     const list = document.getElementById('sellerOrdersList');
 
     try {
-        logger.info('Fetching seller orders');
         const orders = await apiCall('/orders/seller');
 
         if (orders.length === 0) {
             list.innerHTML = '<p class="empty-state">No orders yet for your products.</p>';
             return;
         }
-
         list.innerHTML = orders.map(order => {
             const isAwaitingApproval = order.status === 'AWAITING_APPROVAL';
             const statusColor = isAwaitingApproval ? 'rgba(255,165,0,0.3)' : 'rgba(0,255,0,0.2)';

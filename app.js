@@ -30,18 +30,22 @@ function init() {
     // Load email from storage
     state.userEmail = localStorage.getItem('user_email');
 
-    // Initialize all handlers
+    // Initialize auth handlers first
     initAuthHandlers();
+
+    // Update UI BEFORE attaching navigation handlers
+    // This ensures buttons are visible when we attach event listeners
+    updateAuthUI();
+
+    // NOW attach navigation handlers (after buttons are visible)
     initNavigationHandlers();
+
+    // Initialize other handlers
     initProductHandlers();
     initAddressHandlers();
     initMainPageHandlers();
 
-    // Update UI and navigate
-    updateAuthUI();
-
     // Always start at main page
-    logger.info('Navigating to main page');
     navigateTo('main');
 
     logger.info('Application initialized successfully');
